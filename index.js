@@ -21,10 +21,11 @@ routes(app, (err) => {
   if (err) {
     throw err;
   }
-
+  //app.use('/api/',routes.users)
   app.use(errorHandler);
 
   app.listen(port, () => {
     console.info(`App listening on port ${port}`);
   });
+
 });
