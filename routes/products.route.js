@@ -3,6 +3,10 @@ const {
   requireAdmin,
 } = require('../middleware/auth');
 
+const {
+  createProduct,
+} = require('../controller/products.controller');
+
 /** @module products */
 module.exports = (app, nextMain) => {
   /**
@@ -72,9 +76,7 @@ module.exports = (app, nextMain) => {
    * @code {403} si no es admin
    * @code {404} si el producto con `productId` indicado no existe
    */
-  app.post('/products', requireAdmin, (req, resp, next) => {
-  });
-
+  app.post("/products",  createProduct);
   /**
    * @name PUT /products
    * @description Modifica un producto

@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt');
-const initDB = require('../connect');
 
 const {
   requireAuth,
@@ -15,13 +14,13 @@ const initAdminUser = (app, next) => {
   if (!adminEmail || !adminPassword) {
     return next();
   }
-
+  
   const adminUser = {
     email: adminEmail,
     password: bcrypt.hashSync(adminPassword, 10),
     roles: { admin: true },
   };
- // let r =  initDB.db.collection('inserts').insertOne({a:1});
+
   // TODO: crear usuaria admin
   // Primero ver si ya existe adminUser en base de datos
   // si no existe, hay que guardarlo
