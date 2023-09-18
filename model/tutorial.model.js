@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
     var tutorialSchema = mongoose.Schema(
       {
         title: String,

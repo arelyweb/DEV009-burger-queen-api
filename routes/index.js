@@ -3,7 +3,6 @@ const users = require('./users.route');
 const products = require('./products.route');
 const orders = require('./orders.route');
 const totorials = require('./tutorials.route');
-
 const root = (app, next) => {
   const pkg = app.get('pkg');
   app.get('/', (req, res) => res.json({ name: pkg.name, version: pkg.version }));
