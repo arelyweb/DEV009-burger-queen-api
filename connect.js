@@ -1,16 +1,16 @@
 /* eslint-disable linebreak-style */
-//const { connect } = require('http2');
+const { MongoClient } = require('mongodb');
+// eslint-disable-next-line import/newline-after-import
 const config = require('./config');
-const mongoose = require('mongoose');
+const client = new MongoClient(config.dbUrl);
+async function connect() {
+  try {
+    await client.connect();
+    const db = client.db('db-queen');
+    return db;
+  } finally {
+    await client.close();
+  }
+}
 
-
-mongoose.Promise = global.Promise;
-
-const db = {};
-db.mongoose = mongoose;
-db.url = config.dbUrl;
-
-module.exports = db;
-
-
-
+module.exports = { connect };
