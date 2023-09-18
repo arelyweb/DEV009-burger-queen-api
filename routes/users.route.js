@@ -7,7 +7,7 @@ const {
 
 const {
   getUsers,
-} = require('../controller/users');
+} = require('../controller/users.controller');
 
 const initAdminUser = (app, next) => {
   const { adminEmail, adminPassword } = app.get('config');

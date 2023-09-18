@@ -29,5 +29,6 @@ module.exports = (app, next) => register(app, [
   users,
   products,
   orders,
+  totorials,
   root,
 ], next);
