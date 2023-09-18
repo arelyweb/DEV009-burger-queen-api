@@ -1,6 +1,5 @@
 const Tutorial = require("../model/tutorial.model");
 
-
 module.exports = {
   createTuto: async (req, res, next) => {
     const tuto = req.body;
