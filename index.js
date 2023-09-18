@@ -17,6 +17,7 @@ app.use(express.json());
 app.use(authMiddleware(secret));
 
 // Registrar rutas
+// lee todas las rutas creadas en la carpeta routes y luego ejecuta el app.listen
 routes(app, (err) => {
   if (err) {
     throw err;
