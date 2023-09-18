@@ -1,6 +1,7 @@
 {
   "name": "burger-queen-api",
   "version": "1.0.0",
+  "description": "Node.js Restful CRUD API with Node.js, Express and MongoDB",
   "main": "index.js",
   "license": "MIT",
   "engines": {
@@ -18,12 +19,16 @@
   },
   "dependencies": {
     "@shelf/jest-mongodb": "^4.1.7",
+    "assert": "^2.0.0",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "6.0",
-    "mongodb-memory-server": "^8.12.2"
+    "mongodb-memory-server": "^8.12.2",
+    "mongoose": "^7.5.1",
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "docdash": "^1.2.0",
@@ -41,5 +46,12 @@
     "createdAt": "2023-08-22T17:12:41.073Z",
     "version": "6.6.0",
     "commit": "24f5a51ee0a15f345b59fcd2ef44c3616abdfce5"
-  }
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "rest",
+    "api",
+    "mongodb"
+  ]
 }
