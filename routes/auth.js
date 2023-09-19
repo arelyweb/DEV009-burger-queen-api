@@ -17,19 +17,31 @@ module.exports = (app, nextMain) => {
    * @code {400} si no se proveen `email` o `password` o ninguno de los dos
    * @auth No requiere autenticación
    */
-  app.post('/auth', (req, resp, next) => {
+  app.post('/auth', async (req, resp, next) => {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return next(400);
-    }
+    try {
+     
+      //verifica que exista
+      if (!email || !password) {
+          return res.json({ message: 'Please enter all the details' })
+      }
 
-    // TODO: autenticar a la usuarix
-    // Hay que confirmar si el email y password
-    // coinciden con un user en la base de datos
-    // Si coinciden, manda un access token creado con jwt
-
-    next();
+       //verifica q exista en la bd
+       const userExist = await userModel.findOne({email:req.body.email});
+       if(!userExist){
+           return res.json({message:'Wrong credentials'})
+       }
+       //match en el password
+       const isPasswordMatched = await bcrypt.compare(password,userExist.password);
+       if(!isPasswordMatched){
+           return res.json({message:'Wrong credentials pass'});
+       }
+       const token = await jwt.sign({ id: userExist._id }, secret);
+       return resp.cookie({"token":token}).json(token)//devuelve el token
+    } catch (error) {
+          return resp.json({ error: error });
+      }
   });
 
   return nextMain();

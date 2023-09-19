@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
       {
         email: {
             type: String,
+            required:true,
+            unique:true,
             validate: {
               validator: function(v) {
                 return /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/.test(v);
@@ -13,12 +15,8 @@ const mongoose = require('mongoose');
          },
         password:{
             type: String,
-            validate: {
-              validator: function(v) {
-                return v.length>5;
-              },
-              message: props => `${props.value} is not a valid password!`
-            }
+            required:true,
+            minLength:[6,'Password should be minimum of 6 characters']
          },
         role: {
             type: String,
