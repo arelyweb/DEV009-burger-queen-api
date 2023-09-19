@@ -1,15 +1,16 @@
 const bcrypt = require('bcrypt');
-
+const User = require("../model/user.model");
 const {
   requireAuth,
   requireAdmin,
 } = require('../middleware/auth');
 
 const {
+  createUser,
   getUsers,
 } = require('../controller/users.controller');
 
-const initAdminUser = (app, next) => {
+const initAdminUser = async (app, next) => {
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {
     return next();
@@ -18,12 +19,14 @@ const initAdminUser = (app, next) => {
   const adminUser = {
     email: adminEmail,
     password: bcrypt.hashSync(adminPassword, 10),
-    roles: { admin: true },
+    role: 'admin'
   };
 
-  // TODO: crear usuaria admin
-  // Primero ver si ya existe adminUser en base de datos
-  // si no existe, hay que guardarlo
+  const user = await User.findOne({ email: adminEmail });
+  if (!user) {
+    const newAdminUser = new User(adminUser);
+    await newAdminUser.save();
+  }
 
   next();
 };
@@ -117,11 +120,7 @@ module.exports = (app, next) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {403} si ya existe usuaria con ese `email`
    */
-  app.post('/users', requireAdmin, (req, resp, next) => {
-    // TODO: implementar la ruta para agregar
-    // nuevos usuarios
-  });
-
+  app.post("/users",  createUser);
   /**
    * @name PUT /users
    * @description Modifica una usuaria
