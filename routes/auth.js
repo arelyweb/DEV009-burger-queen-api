@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-
+const User = require("../model/user.model");
+const bcrypt = require('bcrypt');
 const { secret } = config;
 
 /** @module auth */
@@ -28,7 +29,7 @@ module.exports = (app, nextMain) => {
       }
 
        //verifica q exista en la bd
-       const userExist = await userModel.findOne({email:req.body.email});
+       const userExist = await User.findOne({email:req.body.email});
        if(!userExist){
            return res.json({message:'Wrong credentials'})
        }
