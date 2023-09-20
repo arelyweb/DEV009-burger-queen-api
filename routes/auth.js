@@ -39,7 +39,7 @@ module.exports = (app, nextMain) => {
            return res.json({message:'Wrong credentials pass'});
        }
        const token = await jwt.sign({ id: userExist._id }, secret);
-       return resp.cookie({"token":token}).json(token)//devuelve el token
+       return resp.cookie({"token":token}).json({ "accessToken":token})//devuelve el token
     } catch (error) {
           return resp.json({ error: error });
       }

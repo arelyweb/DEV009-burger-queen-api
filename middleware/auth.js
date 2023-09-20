@@ -21,10 +21,7 @@ module.exports = (secret) => (req, resp, next) => {
 module.exports.isAuthenticated = (req) => (!!req.user);
 
 
-module.exports.isAdmin = (req) => (
-  // TODO: decidir por la informacion del request si la usuaria es admin
-  false
-);
+module.exports.isAdmin = (req) => !!req.user.roles.admin;
 
 module.exports.requireAuth = (req, resp, next) => (
   (!module.exports.isAuthenticated(req))

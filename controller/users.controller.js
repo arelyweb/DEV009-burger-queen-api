@@ -1,3 +1,4 @@
+var mongoosePaginate = require('mongoose-paginate');
 const User = require("../model/user.model");
 const bcrypt = require('bcrypt');
 module.exports = {
@@ -21,16 +22,35 @@ module.exports = {
       return next(404);
     }
   },
-  getUsers: async (req, resp, next) => {
+  getUsers: async (req, res, next) => {
     // TODO: Implementa la función necesaria para traer la colección `users`
+    const page = parseInt(req.query._page);
+    const limit = parseInt(req.query._limit);
+
+    const startI = (page-1) * limit;
+    const endI = page * limit;
+
+    const result = {}
+    result.next = {
+      page: page+ 1,
+      limit: limit
+    };
+
+    result.previous = {
+      page: page - 1,
+      limit: limit
+    };
     try {
-      const usr = await User.find();
-      if (!usr) {
-          return res.json({ message: 'No user found' })
-      }
-      return res.json({ user: usr })
-  } catch (error) {
-      return res.json({ error: error });
-  }
+    const users = await User.find()
+    .select('email role')
+      .limit(limit)
+      .skip(startI)
+      .exec();
+
+      res.json(users);
+
+    } catch (err) {
+      console.error(err.message);
+    }
   },
 };
