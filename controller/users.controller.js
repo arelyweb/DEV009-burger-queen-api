@@ -24,8 +24,8 @@ module.exports = {
   },
   getUsers: async (req, res, next) => {
     // TODO: Implementa la función necesaria para traer la colección `users`
-    const page = parseInt(req.query._page);
-    const limit = parseInt(req.query._limit);
+    const page = parseInt(req.query._page)|| 1;
+    const limit = parseInt(req.query._limit)|| 10;
 
     const startI = (page-1) * limit;
     const endI = page * limit;
@@ -41,13 +41,38 @@ module.exports = {
       limit: limit
     };
     try {
-    const users = await User.find()
-    .select('email role')
-      .limit(limit)
-      .skip(startI)
-      .exec();
+    const users = await User.find();
+    const numberOfPages = Math.ceil(users.length / limit);
+    const response = {};
 
-      res.json(users);
+    response.pagination = {
+      page: page,
+      pageSize: limit,
+      numberOfPages: numberOfPages,
+    };
+
+    if (startI > 0) {
+      response.link = {
+        first: `/products?page=1&limit=${limit}`,
+        prev: `/products?page=${page - 1}&limit=${limit}`,
+      };
+    }
+
+    if (endI < users.length) {
+      response.link = {
+        ...response.link,
+        next: `/products?page=${page + 1}&limit=${limit}`,
+        last: `/products?page=${numberOfPages}&limit=${limit}`,
+      };
+    }
+    response.result = users.slice(startI, endI).map((user) => ({
+      id: user._id,
+      email: user.email,
+      role: user.role,
+    }));
+
+    res.json(response); 
+
 
     } catch (err) {
       console.error(err.message);
