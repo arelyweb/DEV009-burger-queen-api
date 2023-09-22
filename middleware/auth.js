@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require("../model/user.model")
 
 module.exports = (secret) => (req, resp, next) => {
+ 
   const { authorization } = req.headers;
 
   if (!authorization) return next();
@@ -13,15 +14,19 @@ module.exports = (secret) => (req, resp, next) => {
   jwt.verify(token, secret, async (err, decodedToken) => {
     if (err) return next(403);   
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
-    req.user = await User.findById(decodedToken.uid, { password: 0 });
+    const user = await User.findById(decodedToken.id,{password: 0});
+    if (!user) return next(404).json({message:"No user found"});
+    req.user = user;
     next();
   });
 };
 
-module.exports.isAuthenticated = (req) => (!!req.user);
+
+module.exports.isAuthenticated = (req) => (req.user);
 
 
-module.exports.isAdmin = (req) => !!req.user.roles.admin;
+module.exports.isAdmin = (req) => (req.user.role=== "admin");
+
 
 module.exports.requireAuth = (req, resp, next) => (
   (!module.exports.isAuthenticated(req))
@@ -34,6 +39,6 @@ module.exports.requireAdmin = (req, resp, next) => (
   (!module.exports.isAuthenticated(req))
     ? next(401)
     : (!module.exports.isAdmin(req))
-      ? next(403)
+      ? next(401)
       : next()
 );
