@@ -22,7 +22,7 @@ module.exports = (secret) => (req, resp, next) => {
 };
 
 
-module.exports.isAuthenticated = (req) => (req.user);
+module.exports.isAuthenticated = (req) => (!!req.user);
 
 
 module.exports.isAdmin = (req) => (req.user.role=== "admin");

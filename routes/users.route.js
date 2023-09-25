@@ -8,6 +8,7 @@ const {
 const {
   createUser,
   getUsers,
+  getOneUser,
 } = require('../controller/users.controller');
 
 const initAdminUser = async (app, next) => {
@@ -98,8 +99,7 @@ module.exports = (app, next) => {
    * @code {403} si no es ni admin o la misma usuaria
    * @code {404} si la usuaria solicitada no existe
    */
-  app.get('/users/:uid', requireAuth, (req, resp) => {
-  });
+  app.get('/users/:uid',requireAuth, getOneUser);
 
   /**
    * @name POST /users

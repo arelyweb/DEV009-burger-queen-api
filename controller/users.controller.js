@@ -1,6 +1,9 @@
 var mongoosePaginate = require('mongoose-paginate');
 const User = require("../model/user.model");
 const bcrypt = require('bcrypt');
+const {
+  idOrEmail
+} = require ("../utils/util")
 module.exports = {
   createUser: async (req, res, next) => {
     const user = req.body;
@@ -19,7 +22,7 @@ module.exports = {
         role: newT.role,
       });
     } catch (error) {
-      return next(404);
+      return res.json({ error: error.message });
     }
   },
   getUsers: async (req, res, next) => {
@@ -71,11 +74,27 @@ module.exports = {
       role: user.role,
     }));
 
-    res.json(response); 
+    return res.json(response); 
 
 
     } catch (err) {
-      console.error(err.message);
+      return res.json({ error: err.message });
+    }
+  },
+  getOneUser: async(req, res, next) => {
+    const userQ = idOrEmail(req.params.uid);
+    try{
+
+      const user = await User.findOne(userQ).lean();//sin metodos del mongodb
+    console.log(user)
+      return res.json({
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+      });
+
+    }catch(err){
+      return res.json({ error: err.message});
     }
   },
 };
