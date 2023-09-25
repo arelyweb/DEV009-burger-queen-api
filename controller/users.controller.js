@@ -86,7 +86,7 @@ module.exports = {
     try{
 
       const user = await User.findOne(userQ).lean();//sin metodos del mongodb
-    console.log(user)
+   
       return res.json({
         _id: user._id,
         email: user.email,
