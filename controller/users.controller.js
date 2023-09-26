@@ -27,6 +27,7 @@ module.exports = {
   },
   getUsers: async (req, res, next) => {
     // TODO: Implementa la función necesaria para traer la colección `users`
+    console.log(req.query)
     const page = parseInt(req.query._page)|| 1;
     const limit = parseInt(req.query._limit)|| 10;
 
