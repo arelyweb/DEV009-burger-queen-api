@@ -4,12 +4,12 @@ const {
 } = require('../middleware/auth');
 const {
   createProduct,
+  getProduct
 } = require('../controller/products.controller');
 /** @module products */
 module.exports = (app, nextMain) => {
 
-  app.get('/products', requireAuth, (req, resp, next) => {
-  });
+  app.get('/products', requireAuth, getProduct);
 
   /**
    * @name GET /products/:productId

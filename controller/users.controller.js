@@ -56,16 +56,16 @@ module.exports = {
 
     if (startI > 0) {
       response.link = {
-        first: `/products?page=1&limit=${limit}`,
-        prev: `/products?page=${page - 1}&limit=${limit}`,
+        first: `/users?page=1&limit=${limit}`,
+        prev: `/users?page=${page - 1}&limit=${limit}`,
       };
     }
 
     if (endI < users.length) {
       response.link = {
         ...response.link,
-        next: `/products?page=${page + 1}&limit=${limit}`,
-        last: `/products?page=${numberOfPages}&limit=${limit}`,
+        next: `/users?page=${page + 1}&limit=${limit}`,
+        last: `/users?page=${numberOfPages}&limit=${limit}`,
       };
     }
     response.result = users.slice(startI, endI).map((user) => ({
@@ -78,7 +78,7 @@ module.exports = {
 
 
     } catch (err) {
-      return res.json({ error: err.message });
+      return next(404);
     }
   },
   getOneUser: async(req, res, next) => {
@@ -94,7 +94,50 @@ module.exports = {
       });
 
     }catch(err){
-      return res.json({ error: err.message});
+      return next(404);
     }
   },
+  updateUser: async(req, res, next) =>{
+    const user = idOrEmail(req.params.uid);
+    const userUp = {
+      email: req.body.email,
+      password : user.password,
+      role: req.body.role,
+    }
+    
+
+    try {
+      userUp.password = bcrypt.hashSync(req.body.password, 10);
+      
+      const newUsr = await User.findOneAndUpdate(user, userUp, {
+        new: true
+      });
+
+      return res.json({
+        _id: newUsr._id,
+        email: newUsr.email,
+        role: newUsr.role,
+      });
+
+    } catch (error) {
+      return next(404);
+    }
+
+  },
+  deleteUser: async(req, res, next) =>{
+    const user = idOrEmail(req.params.uid);
+    
+    try {
+      const deletedUser =await User.findOneAndDelete(user).lean();
+
+      return res.json({
+        _id: deletedUser._id,
+        email: deletedUser.email,
+        role: deletedUser.role,
+      });
+   }
+   catch(e){
+    return next(404);
+   }
+  }
 };
