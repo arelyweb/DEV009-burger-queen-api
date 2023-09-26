@@ -15,14 +15,17 @@ module.exports = (secret) => (req, resp, next) => {
     if (err) return next(403);   
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
     const user = await User.findById(decodedToken.id,{password: 0});
+   
     if (!user) return next(404).json({message:"No user found"});
+    
     req.user = user;
+    
     next();
   });
 };
 
 
-module.exports.isAuthenticated = (req) => (req.user);
+module.exports.isAuthenticated = (req) => (!!req.user);
 
 
 module.exports.isAdmin = (req) => (req.user.role=== "admin");

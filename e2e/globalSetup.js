@@ -7,7 +7,7 @@ const mongoGlobalSetup = require("@shelf/jest-mongodb/lib/setup");
 
 const config = require('../config');
 
-const port = process.env.PORT || 8888;
+const port = process.env.PORT || 8080;
 const baseUrl = process.env.REMOTE_URL || `http://127.0.0.1:${port}`;
 
 const __e2e = {
@@ -84,7 +84,7 @@ const checkAdminCredentials = () => fetch('/auth', {
 
     return resp.json();
   })
-  .then(({ token }) => Object.assign(__e2e, { adminToken: token }));
+  .then(({ accessToken }) => Object.assign(__e2e, { adminToken: accessToken }));
 
 const waitForServerToBeReady = (retries = 10) => new Promise((resolve, reject) => {
   if (!retries) {

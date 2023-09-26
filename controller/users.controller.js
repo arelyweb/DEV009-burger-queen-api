@@ -1,6 +1,9 @@
 var mongoosePaginate = require('mongoose-paginate');
 const User = require("../model/user.model");
 const bcrypt = require('bcrypt');
+const {
+  idOrEmail
+} = require ("../utils/util")
 module.exports = {
   createUser: async (req, res, next) => {
     const user = req.body;
@@ -19,7 +22,7 @@ module.exports = {
         role: newT.role,
       });
     } catch (error) {
-      return next(404);
+      return res.json({ error: error.message });
     }
   },
   getUsers: async (req, res, next) => {
@@ -54,29 +57,88 @@ module.exports = {
 
     if (startI > 0) {
       response.link = {
-        first: `/products?page=1&limit=${limit}`,
-        prev: `/products?page=${page - 1}&limit=${limit}`,
+        first: `/users?_page=1&_limit=${limit}`,
+        prev: `/users?_page=${page - 1}&_limit=${limit}`,
       };
     }
 
     if (endI < users.length) {
       response.link = {
         ...response.link,
-        next: `/products?page=${page + 1}&limit=${limit}`,
-        last: `/products?page=${numberOfPages}&limit=${limit}`,
+        next: `/users?_page=${page + 1}&_limit=${limit}`,
+        last: `/users?_page=${numberOfPages}&_limit=${limit}`,
       };
     }
     response.result = users.slice(startI, endI).map((user) => ({
-      id: user._id,
+      _id: user._id,
       email: user.email,
       role: user.role,
     }));
 
-    res.json(response); 
+    return res.json(response); 
 
 
     } catch (err) {
-      console.error(err.message);
+      return next(404);
     }
   },
+  getOneUser: async(req, res, next) => {
+    const userQ = idOrEmail(req.params.uid);
+    try{
+
+      const user = await User.findOne(userQ).lean();//sin metodos del mongodb
+   
+      return res.json({
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+      });
+
+    }catch(err){
+      return next(404).json('message: No found user.');
+    }
+  },
+  updateUser: async(req, res, next) =>{
+    const user = idOrEmail(req.params.uid);
+    const userUp = {
+      email: req.body.email,
+      password : user.password,
+      role: req.body.role,
+    }
+    
+
+    try {
+      userUp.password = bcrypt.hashSync(req.body.password, 10);
+      
+      const newUsr = await User.findOneAndUpdate(user, userUp, {
+        new: true
+      });
+
+      return res.json({
+        _id: newUsr._id,
+        email: newUsr.email,
+        role: newUsr.role,
+      });
+
+    } catch (error) {
+      return next(404);
+    }
+
+  },
+  deleteUser: async(req, res, next) =>{
+    const user = idOrEmail(req.params.uid);
+    
+    try {
+      const deletedUser =await User.findOneAndDelete(user).lean();
+
+      return res.json({
+        _id: deletedUser._id,
+        email: deletedUser.email,
+        role: deletedUser.role,
+      });
+   }
+   catch(e){
+    return next(404);
+   }
+  }
 };
