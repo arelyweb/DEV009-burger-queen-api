@@ -56,20 +56,20 @@ module.exports = {
 
     if (startI > 0) {
       response.link = {
-        first: `/users?page=1&limit=${limit}`,
-        prev: `/users?page=${page - 1}&limit=${limit}`,
+        first: `/users?_page=1&_limit=${limit}`,
+        prev: `/users?_page=${page - 1}&_limit=${limit}`,
       };
     }
 
     if (endI < users.length) {
       response.link = {
         ...response.link,
-        next: `/users?page=${page + 1}&limit=${limit}`,
-        last: `/users?page=${numberOfPages}&limit=${limit}`,
+        next: `/users?_page=${page + 1}&_limit=${limit}`,
+        last: `/users?_page=${numberOfPages}&_limit=${limit}`,
       };
     }
     response.result = users.slice(startI, endI).map((user) => ({
-      id: user._id,
+      _id: user._id,
       email: user.email,
       role: user.role,
     }));
@@ -94,7 +94,7 @@ module.exports = {
       });
 
     }catch(err){
-      return next(404);
+      return next(404).json('message: No found user.');
     }
   },
   updateUser: async(req, res, next) =>{
