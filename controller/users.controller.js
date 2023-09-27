@@ -1,4 +1,3 @@
-var mongoosePaginate = require('mongoose-paginate');
 const User = require("../model/user.model");
 const bcrypt = require('bcrypt');
 const {
