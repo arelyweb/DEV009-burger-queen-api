@@ -79,5 +79,56 @@ const {
     } catch (err) {
       return next(404);
     }
+   },
+   getOneOrder: async(req, res, next) => {
+    const orderQ = req.params.orderId;
+    try{
+
+      const order = await Order.findById(orderQ)
+      .populate('products.productId')
+      .exec();
+   
+      return res.json(order);
+
+    }catch(err){
+      return next(404).json('message: No found order.');
+    }
+  },
+  updateOrder: async(req, res, next) =>{  
+    const orderQ = req.params.orderId;
+
+    const orderUp = {
+      status: req.body.status,
+    }
+    
+
+    try {
+    
+      const newProduct = await Order.findByIdAndUpdate(orderQ, orderUp, {
+        new: true
+      }).populate('products.productId')
+      .exec();;
+
+      return res.json(newProduct);
+
+    } catch (error) {
+      return next(404);
+    }
+
+  },
+  deleteOrder: async(req, res, next) =>{
+    const orderQ = req.params.orderId;
+
+    try {
+
+      const deleteO = await Order.findByIdAndDelete(orderQ)
+      .populate('products.productId')
+      .exec();
+
+      return res.json(deleteO);
    }
+   catch(e){
+    return next(404);
+   }
+ }
  };

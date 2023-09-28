@@ -85,7 +85,7 @@ module.exports = {
       });
 
     }catch(err){
-      return next(404).json('message: No found user.');
+      return next(404).json('message: No found product.');
     }
   },
   updateProduct: async(req, res, next) =>{
