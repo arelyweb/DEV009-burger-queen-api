@@ -20,7 +20,7 @@ const mongoose = require('mongoose');
          },
         role: {
             type: String,
-            values:[ 'admin', 'waiter', 'chef' ]
+            enum: [ 'admin', 'waiter', 'chef' ]
           }
     }
     );
