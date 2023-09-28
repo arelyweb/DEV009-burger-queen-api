@@ -1,3 +1,7 @@
+const{
+  createOrder
+} = require('../controller/orders.controller')
+
 const {
   requireAuth,
 } = require('../middleware/auth');
@@ -83,8 +87,7 @@ module.exports = (app, nextMain) => {
    * @code {400} no se indica `userId` o se intenta crear una orden sin productos
    * @code {401} si no hay cabecera de autenticación
    */
-  app.post('/orders', requireAuth, (req, resp, next) => {
-  });
+  app.post('/orders', requireAuth, createOrder);
 
   /**
    * @name PUT /orders

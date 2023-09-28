@@ -1,28 +1,29 @@
 const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 var orderSchema = mongoose.Schema(
     {
       userId:{
-
+        type: Schema.ObjectId,
+        ref: 'users',
       },
       client: {
           type: String,
           required:true,
         },
-        products: [{
+      products: [{
             qty: Number,
-            product: {
+            productId: {
                 type: Schema.ObjectId,
                 ref: 'products',
             },
-        }
-        ],
-       status: {
+        }],
+      status: {
           type: String,
           enum: [ 'pending', 'canceled', 'delivering', 'delivered' ],
           default:'pending'
         },
-        dateProcessed:{
+      dateProcessed:{
             type: Date,
             default: Date.now()
         }
@@ -30,4 +31,4 @@ var orderSchema = mongoose.Schema(
     { timestamps: true }
   );
 
-module.exports = mongoose.model('users', orderSchema);
+module.exports = mongoose.model('orders', orderSchema);

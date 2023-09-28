@@ -1,26 +1,32 @@
-const User = require("../model/user.model");
+const Order = require("../model/order.model");
+const Product = require("../model/product.model");
+
 const {
     idOrEmail
   } = require ("../utils/util");
 
   module.exports = {
-    createOrder: async (req, res, next) => {
+     createOrder: async (req, res, next) => {
       const order = req.body;
+      if (!order.products || order.products.length === 0) return next(400);
+      const newOrder = new Order({
+        ...req.body,
+        products: req.body.products.map((product) => ({
+          qty: product.qty,
+          productId: product.productId,
+        })),
+      });
       try {
-        if (!order.email || !order.password ) return next(400);
-  
-        const userFound = await User.findOne({ email: order.email });
-        if (userFound) return next(403);
-  
-  
-        const newT = await User.create(order);
-        return res.json({
-          _id: newT._id,
-          email: newT.email,
-          role: newT.role,
-        });
+        const newOrderSaved = await newOrder.save();
+    
+        const populatedOrder = await Order.findById(newOrderSaved._id)
+        .populate('products.productId')
+        .exec();
+    
+        return res.json(populatedOrder);
       } catch (error) {
-        return res.json({ error: error.message });
+        return next(error);
       }
-    },
-};
+    }
+
+ };
