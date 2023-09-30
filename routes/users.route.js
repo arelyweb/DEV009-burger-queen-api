@@ -3,6 +3,7 @@ const User = require("../model/user.model");
 const {
   requireAuth,
   requireAdmin,
+  requireAdminOrSameUser
 } = require('../middleware/auth');
 
 const {
@@ -101,7 +102,7 @@ module.exports = (app, next) => {
    * @code {403} si no es ni admin o la misma usuaria
    * @code {404} si la usuaria solicitada no existe
    */
-  app.get('/users/:uid',requireAuth, getOneUser);
+  app.get('/users/:uid',requireAdminOrSameUser, getOneUser);
 
   /**
    * @name POST /users
@@ -122,7 +123,7 @@ module.exports = (app, next) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {403} si ya existe usuaria con ese `email`
    */
-  app.post("/users",requireAdmin, createUser);
+  app.post("/users",requireAuth, createUser);
   /**
    * @name PUT /users
    * @description Modifica una usuaria
@@ -145,7 +146,7 @@ module.exports = (app, next) => {
    * @code {403} una usuaria no admin intenta de modificar sus `roles`
    * @code {404} si la usuaria solicitada no existe
    */
-  app.put('/users/:uid', requireAuth, updateUser);
+  app.put('/users/:uid', requireAdminOrSameUser, updateUser);
 
   /**
    * @name DELETE /users
@@ -163,7 +164,7 @@ module.exports = (app, next) => {
    * @code {403} si no es ni admin o la misma usuaria
    * @code {404} si la usuaria solicitada no existe
    */
-  app.delete('/users/:uid', requireAuth, deleteUser);
+  app.delete('/users/:uid', requireAdminOrSameUser, deleteUser);
 
   initAdminUser(app, next);
 };

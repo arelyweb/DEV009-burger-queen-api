@@ -19,7 +19,7 @@ module.exports = (secret) => (req, resp, next) => {
     if (!user) return next(404).json({message:"No user found"});
     
     req.user = user;
-    
+
     next();
   });
 };
@@ -42,6 +42,14 @@ module.exports.requireAdmin = (req, resp, next) => (
   (!module.exports.isAuthenticated(req))
     ? next(401)
     : (!module.exports.isAdmin(req))
-      ? next(401)
+      ? next(403)
       : next()
 );
+
+module.exports.requireAdminOrSameUser = (req, res, next) => (
+ (!module.exports.isAuthenticated(req))
+  ?next(401)
+    :(!module.exports.isAdmin(req) && !(req.user._id.toString() === req.params.uid || req.user.email === req.params.uid))
+      ? next(403)
+      :next()
+); 
