@@ -6,17 +6,21 @@ const {
   } = require ("../utils/util");
 
   module.exports = {
-     createOrder: async (req, res, next) => {
+  createOrder: async (req, res, next) => {
+
       const order = req.body;
-      if (!order.products || order.products.length === 0) return next(400);
-      const newOrder = new Order({
-        ...req.body,
-        products: req.body.products.map((product) => ({
-          qty: product.qty,
-          productId: product.productId,
-        })),
-      });
+
       try {
+        if (!order.products || order.products.length === 0 || !order.userId) return next(400);
+
+        const newOrder = new Order({
+          ...req.body,
+          products: req.body.products.map((product) => ({
+            qty: product.qty,
+            productId: product.productId,
+          })),
+        });
+
         const newOrderSaved = await newOrder.save();
     
         const populatedOrder = await Order.findById(newOrderSaved._id)
@@ -25,10 +29,10 @@ const {
     
         return res.json(populatedOrder);
       } catch (error) {
-        return next(error);
+        return next(404);
       }
-    },
-    getOrder: async (req, res, next) => {
+  },
+  getOrder: async (req, res, next) => {
       const page = parseInt(req.query._page)|| 1;
       const limit = parseInt(req.query._limit)|| 10;
       
@@ -57,30 +61,36 @@ const {
         pageSize: limit,
         numberOfPages: numberOfPages,
       };
+      res.append('pagination', response.pagination);
       
       if (startI > 0) {
-        response.link = {
-          first: `/orders?_page=1&_limit=${limit}`,
-          prev: `/orders?_page=${page - 1}&_limit=${limit}`,
-        };
+        // response.link = {
+        //   first: `/orders?_page=1&_limit=${limit}`,
+        //   prev: `/orders?_page=${page - 1}&_limit=${limit}`,
+        // };
+        res.append('fist', `/orders?_page=1&_limit=${limit}`)
+        res.append('prev', `/orders?_page=${page - 1}&_limit=${limit}`)
       }
      
       if (endI < orders.length) {
-        response.link = {
-          ...response.link,
-          next: `/orders?_page=${page + 1}&_limit=${limit}`,
-          last: `/orders?_page=${numberOfPages}&:_limit=${limit}`,
-        };
+        // response.link = {
+        //   ...response.link,
+        //   next: `/orders?_page=${page + 1}&_limit=${limit}`,
+        //   last: `/orders?_page=${numberOfPages}&:_limit=${limit}`,
+        // };
+        res.append('next', `/orders?_page=${page + 1}&_limit=${limit}`)
+        res.append('last', `/orders?_page=${numberOfPages}&_limit=${limit}`)
       }
      
       response.result = orders.slice(startI, endI);
       
-      return res.json(response); 
+      return res.json(response.result); 
+
     } catch (err) {
       return next(404);
     }
-   },
-   getOneOrder: async(req, res, next) => {
+  },
+  getOneOrder: async(req, res, next) => {
     const orderQ = req.params.orderId;
     try{
 
@@ -91,18 +101,19 @@ const {
       return res.json(order);
 
     }catch(err){
-      return next(404).json('message: No found order.');
+      return next(404)
     }
   },
-  updateOrder: async(req, res, next) =>{  
+  updateOrder: async(req, res, next) =>{
     const orderQ = req.params.orderId;
 
     const orderUp = {
-      status: req.body.status,
+      status: req.body.status
     }
     
-
     try {
+
+      if (!orderUp) return next(400);
     
       const newProduct = await Order.findByIdAndUpdate(orderQ, orderUp, {
         new: true
@@ -120,6 +131,10 @@ const {
     const orderQ = req.params.orderId;
 
     try {
+
+      const orderFound = await Order.findById( orderQ);
+      console.log(orderFound)
+      if (!orderFound) return next(404);
 
       const deleteO = await Order.findByIdAndDelete(orderQ)
       .populate('products.productId')

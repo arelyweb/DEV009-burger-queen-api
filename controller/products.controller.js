@@ -47,7 +47,7 @@ module.exports = {
       pageSize: limit,
       numberOfPages: numberOfPages,
     };
-    res.append('pagination', response.pagination)
+    res.append('pagination', response.pagination);
 
     if (startI > 0) {
       // response.link = {
@@ -140,6 +140,9 @@ module.exports = {
     const product = req.params.productId;
 
     try {
+      const productFound = await User.findById( product);
+      if (!productFound) return next(404);
+
       const deleteProduct =await Product.findByIdAndDelete(product).lean();
 
       return res.json({
