@@ -21,7 +21,7 @@ module.exports = {
         role: newT.role,
       });
     } catch (error) {
-      return res.json({ error: error.message });
+      return next(404);
     }
   },
   getUsers: async (req, res, next) => {
@@ -90,8 +90,12 @@ module.exports = {
     const userQ = idOrEmail(req.params.uid);
     try{
 
+      const userFound = await User.findOne(userQ);
+      if (!userFound) return next(404);
+
       const user = await User.findOne(userQ).lean();//sin metodos del mongodb
    
+
       return res.json({
         _id: user._id,
         email: user.email,
@@ -99,7 +103,7 @@ module.exports = {
       });
 
     }catch(err){
-      return next(404).json('message: No found user.');
+      return next(404)
     }
   },
   updateUser: async(req, res, next) =>{
@@ -130,7 +134,7 @@ module.exports = {
       });
 
     } catch (error) {
-      return res.json({ error: error.message });
+      return next(404);
     }
 
   },
@@ -150,7 +154,7 @@ module.exports = {
       });
    }
    catch(e){
-    return res.json({ error: error.message });
+    return next(404);
    }
   }
 };
