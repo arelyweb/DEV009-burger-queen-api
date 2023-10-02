@@ -21,7 +21,7 @@ module.exports = {
         role: newT.role,
       });
     } catch (error) {
-      return res.json({ error: error.message });
+      return next(404);
     }
   },
   getUsers: async (req, res, next) => {
@@ -53,20 +53,25 @@ module.exports = {
       pageSize: limit,
       numberOfPages: numberOfPages,
     };
+    res.append('pagination', response.pagination)
 
     if (startI > 0) {
-      response.link = {
-        first: `/users?_page=1&_limit=${limit}`,
-        prev: `/users?_page=${page - 1}&_limit=${limit}`,
-      };
+      // response.link = {
+      //   first: `/users?_page=1&_limit=${limit}`,
+      //   prev: `/users?_page=${page - 1}&_limit=${limit}`,
+      // };
+      res.append('fist', `/users?_page=1&_limit=${limit}`)
+      res.append('prev', `/users?_page=${page - 1}&_limit=${limit}`)
     }
 
     if (endI < users.length) {
-      response.link = {
-        ...response.link,
-        next: `/users?_page=${page + 1}&_limit=${limit}`,
-        last: `/users?_page=${numberOfPages}&_limit=${limit}`,
-      };
+      // response.link = {
+      //   ...response.link,
+      //   next: `/users?_page=${page + 1}&_limit=${limit}`,
+      //   last: `/users?_page=${numberOfPages}&_limit=${limit}`,
+      // };
+      res.append('next', `/users?_page=${page + 1}&_limit=${limit}`)
+      res.append('last', `/users?_page=${numberOfPages}&_limit=${limit}`)
     }
     response.result = users.slice(startI, endI).map((user) => ({
       _id: user._id,
@@ -74,7 +79,7 @@ module.exports = {
       role: user.role,
     }));
 
-    return res.json(response); 
+    return res.json(response.result); 
 
 
     } catch (err) {
@@ -85,8 +90,12 @@ module.exports = {
     const userQ = idOrEmail(req.params.uid);
     try{
 
+      const userFound = await User.findOne(userQ);
+      if (!userFound) return next(404);
+
       const user = await User.findOne(userQ).lean();//sin metodos del mongodb
    
+
       return res.json({
         _id: user._id,
         email: user.email,
@@ -94,19 +103,24 @@ module.exports = {
       });
 
     }catch(err){
-      return next(404).json('message: No found user.');
+      return next(404)
     }
   },
   updateUser: async(req, res, next) =>{
     const user = idOrEmail(req.params.uid);
     const userUp = {
       email: req.body.email,
-      password : user.password,
+      password : req.body.password,
       role: req.body.role,
     }
     
-
     try {
+      
+      if (!userUp.email || !userUp.password ) return next(400);
+
+      const userFound = await User.findOne({ email: user.email });
+      if (!userFound) return next(404);
+
       userUp.password = bcrypt.hashSync(req.body.password, 10);
       
       const newUsr = await User.findOneAndUpdate(user, userUp, {
@@ -128,6 +142,9 @@ module.exports = {
     const user = idOrEmail(req.params.uid);
     
     try {
+      const userFound = await User.findOne( user);
+      if (!userFound) return next(404);
+
       const deletedUser =await User.findOneAndDelete(user).lean();
 
       return res.json({

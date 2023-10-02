@@ -3,10 +3,19 @@ const Product = require("../model/product.model");
 module.exports = {
   createProduct: async (req, res, next) => {
     const product = req.body;
+    
     try {
       if (!product.name || !product.price ) return next(400);
+
       const newT = await Product.create(req.body);
-      return res.json(newT);
+      return res.json({
+        _id:newT._id,
+        name: newT.name,
+        price: newT.price,
+        image:newT.image,
+        type: newT.type,
+        createdAt: newT.createdAt
+      });
     } catch (error) {
       return next(404);
     }
@@ -38,20 +47,25 @@ module.exports = {
       pageSize: limit,
       numberOfPages: numberOfPages,
     };
-    
+    res.append('pagination', response.pagination);
+
     if (startI > 0) {
-      response.link = {
-        first: `/products?_page=1&_limit=${limit}`,
-        prev: `/products?_page=${page - 1}&_limit=${limit}`,
-      };
+      // response.link = {
+      //   first: `/products?_page=1&_limit=${limit}`,
+      //   prev: `/products?_page=${page - 1}&_limit=${limit}`,
+      // };
+      res.append('fist', `/products?_page=1&_limit=${limit}`)
+      res.append('prev', `/products?_page=${page - 1}&_limit=${limit}`)
     }
    
     if (endI < products.length) {
-      response.link = {
-        ...response.link,
-        next: `/products?_page=${page + 1}&_limit=${limit}`,
-        last: `/products?_page=${numberOfPages}&:_limit=${limit}`,
-      };
+      // response.link = {
+      //   ...response.link,
+      //   next: `/products?_page=${page + 1}&_limit=${limit}`,
+      //   last: `/products?_page=${numberOfPages}&:_limit=${limit}`,
+      // };
+      res.append('next', `/products?_page=${page + 1}&_limit=${limit}`)
+      res.append('last', `/products?_page=${numberOfPages}&_limit=${limit}`)
     }
    
     response.result = products.slice(startI, endI).map((produc) => ({
@@ -63,17 +77,20 @@ module.exports = {
       createdAt: produc.createdAt
     }));
     
-    return res.json(response); 
+    return res.json(response.result); 
 
     } catch (err) {
-      return next(404);
+      return next(404)
     }
   },
   getOneProduct: async(req, res, next) => {
-    const productQ = req.params.uid;
+    const productQ = req.params.productId;
+ 
     try{
+      const productFound = await User.findOne(productQ);
+      if (!productFound) return next(404);
 
-      const product = await Product.findOne(productQ).lean();//sin metodos del mongodb
+      const product = await Product.findById(productQ).lean();//sin metodos del mongodb
    
       return res.json({
         _id: product._id,
@@ -85,11 +102,11 @@ module.exports = {
       });
 
     }catch(err){
-      return next(404).json('message: No found product.');
+      return next(404)
     }
   },
   updateProduct: async(req, res, next) =>{
-    const product = req.params.uid;
+    const product = req.params.productId;
 
     const productUp = {
       name: req.body.name,
@@ -101,7 +118,7 @@ module.exports = {
 
     try {
     
-      const newProduct = await Product.findOneAndUpdate(product, productUp, {
+      const newProduct = await Product. findByIdAndUpdate(product, productUp, {
         new: true
       });
 
@@ -123,7 +140,10 @@ module.exports = {
     const product = req.params.productId;
 
     try {
-      const deleteProduct =await Product.findOneAndDelete(product).lean();
+      const productFound = await User.findById( product);
+      if (!productFound) return next(404);
+
+      const deleteProduct =await Product.findByIdAndDelete(product).lean();
 
       return res.json({
         _id: deleteProduct._id,
