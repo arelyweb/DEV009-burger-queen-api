@@ -47,7 +47,7 @@ describe('GET /products', () => {
       .then((json) => {
         expect(Array.isArray(json)).toBe(true);
         json.forEach((product) => {
-          expect(typeof product._id).toBe('string');
+          expect(typeof product._id).toBe('ObjectId');
           expect(typeof product.name).toBe('string');
           expect(typeof product.price).toBe('number');
         });
@@ -71,7 +71,7 @@ describe('GET /products/:productid', () => {
         expect(Array.isArray(json)).toBe(true);
         expect(json.length > 0).toBe(true);
         json.forEach((product) => {
-          expect(typeof product._id).toBe('string');
+          expect(typeof product._id).toBe('ObjectId');
           expect(typeof product.name).toBe('string');
           expect(typeof product.price).toBe('number');
         });

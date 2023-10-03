@@ -155,7 +155,7 @@ describe('POST /users', () => {
       body: {
         email: 'test1@test.test',
         password: '12345',
-        roles: { admin: false },
+        role: 'chef',
       },
     })
       .then((resp) => {
@@ -163,11 +163,11 @@ describe('POST /users', () => {
         return resp.json();
       })
       .then((json) => {
-        expect(typeof json._id).toBe('string');
+        expect(typeof json._id).toBe('ObjectId');
         expect(typeof json.email).toBe('string');
         expect(typeof json.password).toBe('undefined');
-        expect(typeof json.roles).toBe('object');
-        expect(json.roles.admin).toBe(false);
+        expect(typeof json.role).toBe('string');
+        expect(json.role).toBe('chef');
       })
   ));
 
@@ -177,7 +177,7 @@ describe('POST /users', () => {
       body: {
         email: 'admin1@test.test',
         password: '12345',
-        roles: { admin: true },
+        role: 'admin',
       },
     })
       .then((resp) => {
@@ -185,11 +185,11 @@ describe('POST /users', () => {
         return resp.json();
       })
       .then((json) => {
-        expect(typeof json._id).toBe('string');
+        expect(typeof json._id).toBe('ObjectId');
         expect(typeof json.email).toBe('string');
         expect(typeof json.password).toBe('undefined');
         expect(typeof json.roles).toBe('object');
-        expect(json.roles.admin).toBe(true);
+        expect(json.role).toBe('admin');
       })
   ));
 
@@ -245,7 +245,7 @@ describe('PUT /users/:uid', () => {
         expect(resp.status).toBe(200);
         return resp.json();
       })
-      .then((json) => expect(json).toHaveProperty('token'))
+      .then((json) => expect(json).toHaveProperty('accessToken'))
   ));
 
   it('should update user when admin', () => (
@@ -262,7 +262,7 @@ describe('PUT /users/:uid', () => {
         expect(resp.status).toBe(200);
         return resp.json();
       })
-      .then((json) => expect(json).toHaveProperty('token'))
+      .then((json) => expect(json).toHaveProperty('accessToken'))
   ));
 });
 
