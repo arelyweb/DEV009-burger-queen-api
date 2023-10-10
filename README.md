@@ -8,8 +8,6 @@
 
 ## 1. Preámbulo
 
-![Node.js logo](https://nodejs.org/static/images/logos/nodejs-new-pantone-black.svg)
-
 Un pequeño restaurante de hamburguesas, que está creciendo, necesita un
 sistema a través del cual puedan tomar pedidos usando una _tablet_, y enviarlos
 a la cocina para que se preparen ordenada y eficientemente.
