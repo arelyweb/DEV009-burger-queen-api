@@ -1,36 +1,35 @@
 const jwt = require('jsonwebtoken');
+const User = require("../model/user.model")
 
 module.exports = (secret) => (req, resp, next) => {
+ 
   const { authorization } = req.headers;
 
-  if (!authorization) {
-    return next();
-  }
+  if (!authorization) return next();
 
   const [type, token] = authorization.split(' ');
 
-  if (type.toLowerCase() !== 'bearer') {
-    return next();
-  }
+  if (type.toLowerCase() !== 'bearer') return next();
 
-  jwt.verify(token, secret, (err, decodedToken) => {
-    if (err) {
-      return next(403);
-    }
-
+  jwt.verify(token, secret, async (err, decodedToken) => {
+    if (err) return next(403);   
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
+    const user = await User.findById(decodedToken.id,{password: 0});
+   
+    if (!user) return next(404).json({message:"No user found"});
+    
+    req.user = user;
+
+    next();
   });
 };
 
-module.exports.isAuthenticated = (req) => (
-  // TODO: decidir por la informacion del request si la usuaria esta autenticada
-  false
-);
 
-module.exports.isAdmin = (req) => (
-  // TODO: decidir por la informacion del request si la usuaria es admin
-  false
-);
+module.exports.isAuthenticated = (req) => (!!req.user);
+
+
+module.exports.isAdmin = (req) => (req.user.role=== "admin");
+
 
 module.exports.requireAuth = (req, resp, next) => (
   (!module.exports.isAuthenticated(req))
@@ -46,3 +45,11 @@ module.exports.requireAdmin = (req, resp, next) => (
       ? next(403)
       : next()
 );
+
+module.exports.requireAdminOrSameUser = (req, res, next) => (
+ (!module.exports.isAuthenticated(req))
+  ?next(401)
+    :(!module.exports.isAdmin(req) && !(req.user._id.toString() === req.params.uid || req.user.email === req.params.uid))
+      ? next(403)
+      :next()
+); 
