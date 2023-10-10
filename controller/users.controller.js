@@ -36,6 +36,8 @@ module.exports = {
     const page = parseInt(req.query._page)|| 1;
     const limit = parseInt(req.query._limit)|| 10;
 
+    const url = `${req.protocol}://${req.get('host')}${req.path}`;
+
     const startI = (page-1) * limit;
     const endI = page * limit;
 
@@ -63,8 +65,8 @@ module.exports = {
 
     if (startI > 0) {
       response.link = {
-        first: `/users?_page=1&_limit=${limit}`,
-        prev: `/users?_page=${page - 1}&_limit=${limit}`,
+        first: `<${url}?_page=1&_limit=${limit}>; rel="first"`,
+        prev: `<${url}?_page=${page - 1}&_limit=${limit}>; rel="prev"`,
       };
       // res.set('fist', `/users?_page=1&_limit=${limit}`)
       // res.set('prev', `/users?_page=${page - 1}&_limit=${limit}`)
@@ -73,8 +75,8 @@ module.exports = {
     if (endI < users.length) {
       response.link = {
         ...response.link,
-        next: `/users?_page=${page + 1}&_limit=${limit}`,
-        last: `/users?_page=${numberOfPages}&_limit=${limit}`,
+        next: `<${url}?_page=${page + 1}&_limit=${limit}>; rel="next"`,
+        last: `<${url}?_page=${numberOfPages}&_limit=${limit}>; rel="last"`,
       };
       // res.set('next', `/users?_page=${page + 1}&_limit=${limit}`)
       // res.set('last', `/users?_page=${numberOfPages}&_limit=${limit}`)
@@ -86,9 +88,10 @@ module.exports = {
       role: user.role,
     }));
 
-    res.set('link', response.link)
+    res.set('link', `${response.link.fist},${response.link.prev},${response.link.next},${response.link.last}`)
 
-    return res.json(response.link); 
+  
+    return res.json(response.result ); 
 
 
     } catch (err) {

@@ -146,6 +146,7 @@ module.exports = () => new Promise((resolve, reject) => {
       .then(resolve)
       .catch((err) => {
         console.log('there was an error');
+        console.error(err)
         kill(child.pid, 'SIGKILL', () => reject(err));
       })
     }).catch((error)=> console.log(error));

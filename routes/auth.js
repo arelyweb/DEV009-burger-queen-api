@@ -25,13 +25,13 @@ module.exports = (app, nextMain) => {
      
       //verifica que exista
       if (!email || !password) {
-          return res.json({ message: 'Please enter all the details' })
+          return next(400);
       }
 
        //verifica q exista en la bd
        const userExist = await User.findOne({email:req.body.email});
        if(!userExist){
-           return res.json({message:'Wrong credentials'})
+           return next(404);
        }
        //match en el password
        const isPasswordMatched = await bcrypt.compare(password,userExist.password);
