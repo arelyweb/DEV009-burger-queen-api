@@ -11,7 +11,7 @@ const {
       const order = req.body;
 
       try {
-        if (!order.products || order.products.length === 0 || !order.userId) return next(400);
+        if (!order.products || Array.isArray(order.products) || !order.userId || !order) return next(400);
 
         const newOrder = new Order({
           ...req.body,

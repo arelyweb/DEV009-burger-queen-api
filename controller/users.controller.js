@@ -1,7 +1,9 @@
 const User = require("../model/user.model");
 const bcrypt = require('bcrypt');
 const {
-  idOrEmail
+  idOrEmail,
+  validPassword,
+  ValidEmail
 } = require ("../utils/util")
 module.exports = {
   createUser: async (req, res, next) => {
@@ -11,6 +13,10 @@ module.exports = {
 
       const userFound = await User.findOne({ email: user.email });
       if (userFound) return next(403);
+
+      // valida las variables obtenidas
+      if (user.password && validPassword(user.password)) return next(400);
+      if (user.email && !ValidEmail(user.email)) return next(400);
 
       user.password = bcrypt.hashSync(user.password, 10);
 
@@ -29,6 +35,8 @@ module.exports = {
     
     const page = parseInt(req.query._page)|| 1;
     const limit = parseInt(req.query._limit)|| 10;
+
+    const url = `${req.protocol}://${req.get('host')}${req.path}`;
 
     const startI = (page-1) * limit;
     const endI = page * limit;
@@ -53,33 +61,37 @@ module.exports = {
       pageSize: limit,
       numberOfPages: numberOfPages,
     };
-    res.append('pagination', response.pagination)
+  
 
     if (startI > 0) {
-      // response.link = {
-      //   first: `/users?_page=1&_limit=${limit}`,
-      //   prev: `/users?_page=${page - 1}&_limit=${limit}`,
-      // };
-      res.append('fist', `/users?_page=1&_limit=${limit}`)
-      res.append('prev', `/users?_page=${page - 1}&_limit=${limit}`)
+      response.link = {
+        first: `<${url}?_page=1&_limit=${limit}>; rel="first"`,
+        prev: `<${url}?_page=${page - 1}&_limit=${limit}>; rel="prev"`,
+      };
+      // res.set('fist', `/users?_page=1&_limit=${limit}`)
+      // res.set('prev', `/users?_page=${page - 1}&_limit=${limit}`)
     }
 
     if (endI < users.length) {
-      // response.link = {
-      //   ...response.link,
-      //   next: `/users?_page=${page + 1}&_limit=${limit}`,
-      //   last: `/users?_page=${numberOfPages}&_limit=${limit}`,
-      // };
-      res.append('next', `/users?_page=${page + 1}&_limit=${limit}`)
-      res.append('last', `/users?_page=${numberOfPages}&_limit=${limit}`)
+      response.link = {
+        ...response.link,
+        next: `<${url}?_page=${page + 1}&_limit=${limit}>; rel="next"`,
+        last: `<${url}?_page=${numberOfPages}&_limit=${limit}>; rel="last"`,
+      };
+      // res.set('next', `/users?_page=${page + 1}&_limit=${limit}`)
+      // res.set('last', `/users?_page=${numberOfPages}&_limit=${limit}`)
     }
+
     response.result = users.slice(startI, endI).map((user) => ({
       _id: user._id,
       email: user.email,
       role: user.role,
     }));
 
-    return res.json(response.result); 
+    res.set('link', `${response.link.fist},${response.link.prev},${response.link.next},${response.link.last}`)
+
+  
+    return res.json(response.result ); 
 
 
     } catch (err) {
@@ -116,7 +128,7 @@ module.exports = {
     
     try {
       
-      if (!userUp.email || !userUp.password ) return next(400);
+      if (!userUp || !userUp.email || !userUp.password ) return next(400);
 
       const userFound = await User.findOne({ email: user.email });
       if (!userFound) return next(404);

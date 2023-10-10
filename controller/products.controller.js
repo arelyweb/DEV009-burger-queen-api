@@ -117,6 +117,7 @@ module.exports = {
     
 
     try {
+      if (Object.keys(productUp).length === 0 || typeof (productUp.price) !== 'number') return next(400);
     
       const newProduct = await Product. findByIdAndUpdate(product, productUp, {
         new: true
